@@ -1,38 +1,58 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import { formatCurrency } from '../utils/formatCurrency';
-import { toast } from 'react-hot-toast';
+import React from "react";
+import { Link } from "react-router-dom";
+import { formatCurrency } from "../utils/formatCurrency";
+import { toast } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+
+// Cart API
+import { addToCart } from "../api/cartService";
 
 const ProductCard = ({ product }) => {
-  const { addToCart } = useCart();
+  const { userInfo } = useAuth();
 
-  const handleAddToCart = (e) => {
-    e.preventDefault(); // Prevent Link navigation
-    e.stopPropagation(); // Stop event bubbling
-    addToCart(product);
-    toast.success('Đã thêm vào giỏ hàng!');
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!userInfo?.token) {
+      return toast.error("Bạn cần đăng nhập để thêm vào giỏ!");
+    }
+
+    try {
+      await addToCart(product._id, 1, userInfo.token);
+      toast.success("Đã thêm vào giỏ hàng!");
+    } catch (error) {
+      console.error("Lỗi thêm vào giỏ:", error);
+      toast.error("Không thể thêm vào giỏ hàng!");
+    }
   };
 
   return (
-    <Link to={`/product/${product._id}`} className="group relative flex flex-col bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-2xl transition-shadow duration-300">
+    <Link
+      to={`/product/${product._id}`}
+      className="group relative flex flex-col bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-2xl transition-shadow duration-300"
+    >
       <div className="relative overflow-hidden">
-        <img 
-          src={product.imageUrl} 
-          alt={product.name} 
-          className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105" 
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>
+
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className="text-lg font-bold text-gray-800 truncate mb-1">{product.name}</h3>
+        <h3 className="text-lg font-bold text-gray-800 truncate mb-1">
+          {product.name}
+        </h3>
         <p className="text-sm text-gray-500 mb-2">Tác giả: {product.author}</p>
-        
+
         {/* Rating */}
         {product.rating && (
           <div className="flex items-center mb-2">
             <span className="text-yellow-500">★</span>
             <span className="text-sm text-gray-600 ml-1">
-              {product.rating.toFixed(1)} {product.reviewCount ? `(${product.reviewCount})` : ''}
+              {product.rating.toFixed(1)}{" "}
+              {product.reviewCount ? `(${product.reviewCount})` : ""}
             </span>
           </div>
         )}
@@ -41,18 +61,28 @@ const ProductCard = ({ product }) => {
         <div className="mb-4 mt-auto">
           {product.salePrice ? (
             <div>
-              <span className="text-gray-400 line-through text-sm">{formatCurrency(product.price)}</span>
-              <span className="text-2xl font-extrabold text-primary ml-2">{formatCurrency(product.salePrice)}</span>
+              <span className="text-gray-400 line-through text-sm">
+                {formatCurrency(product.price)}
+              </span>
+              <span className="text-2xl font-extrabold text-primary ml-2">
+                {formatCurrency(product.salePrice)}
+              </span>
             </div>
           ) : (
-            <p className="text-2xl font-extrabold text-primary">{formatCurrency(product.price)}</p>
+            <p className="text-2xl font-extrabold text-primary">
+              {formatCurrency(product.price)}
+            </p>
           )}
         </div>
 
-        {/* Stock status */}
+        {/* Stock */}
         {product.stock !== undefined && (
-          <p className={`text-xs mb-2 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {product.stock > 0 ? `Còn ${product.stock} cuốn` : 'Hết hàng'}
+          <p
+            className={`text-xs mb-2 ${
+              product.stock > 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {product.stock > 0 ? `Còn ${product.stock} cuốn` : "Hết hàng"}
           </p>
         )}
 
@@ -61,11 +91,11 @@ const ProductCard = ({ product }) => {
           disabled={product.stock === 0}
           className={`w-full font-bold py-2 px-4 rounded-md transition-colors duration-300 relative z-10 ${
             product.stock === 0
-              ? 'bg-gray-400 text-white cursor-not-allowed'
-              : 'bg-primary text-white hover:bg-blue-600'
+              ? "bg-gray-400 text-white cursor-not-allowed"
+              : "bg-primary text-white hover:bg-blue-600"
           }`}
         >
-          {product.stock === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
+          {product.stock === 0 ? "Hết hàng" : "Thêm vào giỏ"}
         </button>
       </div>
     </Link>

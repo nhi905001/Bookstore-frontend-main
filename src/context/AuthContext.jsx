@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
@@ -9,24 +9,24 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      const storedUserInfo = localStorage.getItem('userInfo');
+      const storedUserInfo = localStorage.getItem("userInfo");
       if (storedUserInfo) {
         setUserInfo(JSON.parse(storedUserInfo));
       }
     } catch (error) {
-      console.error('Failed to parse user info from localStorage', error);
+      console.error("Failed to parse user info from localStorage", error);
       // If parsing fails, remove the corrupted item
-      localStorage.removeItem('userInfo');
+      localStorage.removeItem("userInfo");
     }
   }, []);
 
   const login = (userData) => {
-    localStorage.setItem('userInfo', JSON.stringify(userData));
+    localStorage.setItem("userInfo", JSON.stringify(userData));
     setUserInfo(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem('userInfo');
+    localStorage.removeItem("userInfo");
     setUserInfo(null);
   };
 

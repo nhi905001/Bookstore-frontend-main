@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { login as loginApi } from '../api/userService';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { login as loginApi } from "../api/userService";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -14,20 +14,21 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (userInfo) {
-      navigate(userInfo.isAdmin ? '/admin' : '/', { replace: true });
+      navigate(userInfo.isAdmin ? "/admin" : "/", { replace: true });
     }
   }, [userInfo, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     try {
       const data = await loginApi({ email, password });
       login(data);
-      navigate(data.isAdmin ? '/admin' : '/', { replace: true });
+      console.log("TOKEN:", data?.token);
+      navigate(data.isAdmin ? "/admin" : "/", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Đăng nhập thất bại');
+      setError(err.response?.data?.message || "Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }
@@ -37,19 +38,33 @@ const LoginPage = () => {
     <div className="bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Đăng nhập vào tài khoản</h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Đăng nhập vào tài khoản
+          </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Hoặc{' '}
-            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+            Hoặc{" "}
+            <Link
+              to="/register"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               tạo một tài khoản mới
             </Link>
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">{error}</div>}
+          {error && (
+            <div
+              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email-address" className="sr-only">Địa chỉ email</label>
+              <label htmlFor="email-address" className="sr-only">
+                Địa chỉ email
+              </label>
               <input
                 id="email-address"
                 name="email"
@@ -63,7 +78,9 @@ const LoginPage = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">Mật khẩu</label>
+              <label htmlFor="password" className="sr-only">
+                Mật khẩu
+              </label>
               <input
                 id="password"
                 name="password"
@@ -84,7 +101,7 @@ const LoginPage = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
             >
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
           </div>
         </form>

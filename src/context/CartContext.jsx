@@ -1,67 +1,36 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from "react";
+import { useAuth } from "./AuthContext";
+import { addToCart as addToCartApi } from "../api/cartService";
+import { toast } from "react-hot-toast";
 
 const CartContext = createContext();
-
 export const useCart = () => useContext(CartContext);
+console.log(useAuth);
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState(() => {
+  const { userInfo } = useAuth(); // <-- Lấy token ở đây
+  const [cartItems, setCartItems] = useState([]);
+
+  const addToCart = async (product, quantity = 1) => {
+    if (!userInfo?.token) {
+      toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng");
+      return;
+    }
+
     try {
-      const localData = localStorage.getItem('cartItems');
-      return localData ? JSON.parse(localData) : [];
-    } catch (error) {
-      console.error('Could not parse cart items from localStorage', error);
-      return [];
+      const data = await addToCartApi(product._id, quantity, userInfo.token);
+      setCartItems(data.items); // Cập nhật giỏ hàng từ API
+      toast.success("Đã thêm vào giỏ hàng!");
+    } catch (err) {
+      toast.error("Thêm giỏ hàng thất bại");
+      console.error(err);
     }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    } catch (error) {
-      console.error('Could not save cart items to localStorage', error);
-    }
-  }, [cartItems]);
-
-  const addToCart = (product, quantity = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item._id === product._id);
-      if (existingItem) {
-        return prevItems.map(item =>
-          item._id === product._id ? { ...item, quantity: item.quantity + quantity } : item
-        );
-      } else {
-        return [...prevItems, { ...product, quantity }];
-      }
-    });
-  };
-
-  const removeFromCart = (productId) => {
-    setCartItems(prevItems => prevItems.filter(item => item._id !== productId));
-  };
-
-  const updateQuantity = (productId, quantity) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-    } else {
-      setCartItems(prevItems =>
-        prevItems.map(item =>
-          item._id === productId ? { ...item, quantity } : item
-        )
-      );
-    }
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
   };
 
   const value = {
     cartItems,
     addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
+    // updateQuantity, removeFromCart, clearCart...
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
