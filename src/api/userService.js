@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/users';
+const API_URL = `${import.meta.env.VITE_API_URL}/users`;
 
 export const register = async (userData) => {
   const response = await axios.post(`${API_URL}/register`, userData);
@@ -13,13 +13,16 @@ export const login = async (userData) => {
 };
 
 // Admin functions
-export const getUsers = async (token, pageNumber = '') => {
+export const getUsers = async (token, pageNumber = "") => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
-  const response = await axios.get(`${API_URL}?pageNumber=${pageNumber}`, config);
+  const response = await axios.get(
+    `${API_URL}?pageNumber=${pageNumber}`,
+    config
+  );
   return response.data;
 };
 

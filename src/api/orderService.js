@@ -1,12 +1,12 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/orders';
+const API_URL = `${import.meta.env.VITE_API_URL}/orders`;
 
 // User functions
 export const createOrder = async (orderData, token) => {
   const config = {
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
   };
@@ -27,13 +27,16 @@ export const getMyOrders = async (token) => {
 };
 
 // Admin functions
-export const getOrders = async (token, pageNumber = '') => {
+export const getOrders = async (token, pageNumber = "") => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
-  const response = await axios.get(`${API_URL}?pageNumber=${pageNumber}`, config);
+  const response = await axios.get(
+    `${API_URL}?pageNumber=${pageNumber}`,
+    config
+  );
   return response.data;
 };
 
@@ -47,7 +50,7 @@ export const getOrderById = async (id, token) => {
   return response.data;
 };
 
-export const updateOrderStatus = async (id, status, token, note = '') => {
+export const updateOrderStatus = async (id, status, token, note = "") => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -67,6 +70,9 @@ export const getRevenueSummary = async (token, months = 6) => {
       Authorization: `Bearer ${token}`,
     },
   };
-  const response = await axios.get(`${API_URL}/stats/summary?months=${months}`, config);
+  const response = await axios.get(
+    `${API_URL}/stats/summary?months=${months}`,
+    config
+  );
   return response.data;
 };
